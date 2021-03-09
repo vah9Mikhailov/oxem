@@ -115,7 +115,6 @@ class ProductController extends RespController
         /**
          * @var $product Product
          */
-        $product = Product::query()->find($id);
         if (is_null($product)) {
             return $this->getError('Товар не найден');
         } else {
