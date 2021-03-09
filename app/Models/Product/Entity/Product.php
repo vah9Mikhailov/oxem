@@ -2,10 +2,11 @@
 
 namespace App\Models\Product\Entity;
 
-use App\Dto\UpdateProductDto;
+use App\Dto\UpdateProduct;
 use App\Models\Category;
 use App\Models\Product\UseCase\Index\Index;
 use App\Models\Product\UseCase\Store\Command;
+use App\Models\Product\UseCase\Update\Command as UpdateCommand;
 use App\Models\Store;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,9 +40,9 @@ class Product extends Model
     }
 
     /**
-     * @param UpdateProductDto $dto
+     * @param UpdateProduct $dto
      */
-    public function updateProductInfo(UpdateProductDto $dto)
+    public function updateProductInfo(UpdateProduct $dto)
     {
         if (!empty($this->id)) {
             $this->name = $dto->getName();
@@ -139,22 +140,41 @@ class Product extends Model
      * @param Command $command
      * @return $this
      */
-    public function createProduct(Command $command):Product
+    public function createProduct(Command $command): Product
     {
         $this->name = $command->getName();
         $this->description = $command->getDescription();
         $this->price = $command->getPrice();
         $this->external_id = $command->getExternalId();
 
-        if ($this->save()){
+        if ($this->save()) {
             return $this;
         } else {
             throw new \DomainException('Возникла ошибка при сохранении товара');
         }
-
-
     }
 
+    /**
+     * @param UpdateCommand $command
+     * @return Product
+     */
+    public function updateProduct(UpdateCommand $command):Product
+    {
+        /**
+         * @var $product Product
+         */
+        $product = $this->query()->find($command->getId());
+        if (!is_null($product)) {
+            $product->name = $command->getName();
+            $product->description = $command->getDescription();
+            $product->price = $command->getPrice();
+            $product->external_id = $command->getExternalId();
+            $product->update();
+        } else {
+            throw new \DomainException('Товар не найден');
+        }
+        return $product;
+    }
 
 
 }

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Dto\UpdateProductDto;
+
 use App\Models\Product\Dto\InsertProduct;
+use App\Models\Product\Dto\UpdateProduct as UpdateProduct;
 use App\Models\Product\Entity\Product;
 use App\Models\Product\UseCase\Index\Command;
 use App\Models\Product\UseCase\Index\Handler;
@@ -11,6 +12,8 @@ use App\Models\Product\UseCase\Show\Command as ShowCommand;
 use App\Models\Product\UseCase\Show\Handler as ShowHandler;
 use App\Models\Product\UseCase\Store\Command as InsertCommand;
 use App\Models\Product\UseCase\Store\Handler as InsertHandler;
+use App\Models\Product\UseCase\Update\Command as UpdateCommand;
+use App\Models\Product\UseCase\Update\Handler as UpdateHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,7 +87,7 @@ class ProductController extends RespController
             $handler = new InsertHandler();
 
             return $this->getResponse($handler->handle($command), 'Товар успешно добавлен');
-        } catch (\DomainException $e){
+        } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
 
@@ -112,43 +115,50 @@ class ProductController extends RespController
      */
     public function update(Request $request, $id)
     {
-        /**
-         * @var $product Product
-         */
-        if (is_null($product)) {
-            return $this->getError('Товар не найден');
-        } else {
-            $data = $request->all();
-            $validator = Validator::make($data, [
-                'name' => 'required|max:200',
-                'description' => 'required|max:1000',
-                'price' => 'required|numeric',
-                'quantity' => 'required|numeric',
-            ]);
-            $data['categories'] = $request->categories;
+        try {
+            $requestCategs = $request->query('categories');
+            $requestSts = $request->query('stores');
+            $requestQuanty = $request->query('quantity');
+            $categs = [];
+            $sts = [];
+            $qty = [];
 
-            if ($validator->fails()) {
-                return $this->getError('Ошибка валидации', $validator->errors());
+            if (is_array($requestCategs)) {
+                $categs = $requestCategs;
+            } elseif (is_string($requestCategs)) {
+                $categs[] = $requestCategs;
             }
 
-            $updateProductDto = new UpdateProductDto(
-                (string)$data['name'],
-                (string)$data['description'],
-                (float)$data['price'],
-                (string)$data['category_id']
+            if (is_array($requestSts)) {
+                $sts = $requestSts;
+            } elseif (is_string($requestSts)) {
+                $sts[] = $requestSts;
+            }
+
+            if (is_array($requestQuanty)) {
+                $qty = $requestQuanty;
+            } elseif (is_string($requestQuanty)) {
+                $qty[] = $requestQuanty;
+            }
+
+
+            $dto = new UpdateProduct(
+                (int)$id,
+                (string)$request->query('name'),
+                (string)$request->query('description'),
+                (float)$request->query('price'),
+                Uuid::uuid4()->toString(),
+                $categs,
+                $sts,
+                $qty,
             );
 
-            $product->updateProductInfo($updateProductDto);
-
-            /*$product->name = $data['name'];
-            $product->description = $data['description'];
-            $product->price = $data['price'];
-            $product->quantity = $data['quantity'];
-            $product->categories()->sync($request->categories);
-            $product->update();*/
-            return $this->getResponse($product->toArray(), 'Товар обновлён');
+            $command = new UpdateCommand($dto);
+            $handle = new UpdateHandler();
+            return $this->getResponse($handle->handle($command), 'Товар успешно обновлён');
+        } catch (\DomainException $e) {
+            return $this->getError($e->getMessage());
         }
-
     }
 
     /**

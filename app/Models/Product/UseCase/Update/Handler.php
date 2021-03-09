@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Models\Product\UseCase\Store;
+namespace App\Models\Product\UseCase\Update;
 
 
 use App\Models\Category;
@@ -18,12 +18,12 @@ class Handler
     public function handle(Command $command)
     {
         $product = new Product();
-        $product = $product->createProduct($command);
+        $product = $product->updateProduct($command);
         $productService = new ProductService(new Product(),new Category(),new Store());
         $ids = $productService->checkCategoriesForExisting($command->getCategoryIds());
         $ides = $productService->checkStoresForExisting($command->getStoreIds());
+        $productService->addStoresToNewProducts($product,$ides,$command->getQty());
         $productService->addCategoriesToNewProducts($product,$ids);
-        $productService->addStoresToNewProducts($product,$ides, $command->getQty());
         return $product->toArray();
     }
 }

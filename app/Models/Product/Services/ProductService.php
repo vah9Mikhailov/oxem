@@ -48,19 +48,27 @@ final class ProductService
         $insertData = [];
 
         foreach ($categories as $v) {
-            $value = (int)$v;
-            if ($value !== 0) {
+            if ((int)$v !== 0) {
                 $insertData[] = [
                     'product_id' => $product->id,
-                    'category_id' => $value,
+                    'category_id' => (int)$v,
                     'created_at' => (new DateTime())->format('Y-m-d h:i:s'),
                     'updated_at' => (new DateTime())->format('Y-m-d h:i:s'),
                 ];
             }
         }
         if (!empty($insertData)) {
-            DB::table('category_product')
-                ->insert($insertData);
+            foreach ($insertData as $k => $v) {
+                DB::table('category_product')
+                    ->updateOrInsert(['product_id' => $v['product_id'],
+                                        'category_id' => $v['category_id'],
+                    ],[
+                        'category_id' => $v['category_id'],
+                        'created_at' => $v['created_at'],
+                        'updated_at' => $v['updated_at'],
+                    ]);
+            }
+
             return true;
         } else {
             return false;
@@ -86,9 +94,9 @@ final class ProductService
                 unset($ids[$k]);
             }
         }
-        if (empty($ids)){
+        if (empty($ids)) {
             throw new \DomainException('Таких категорий не существует');
-        } else{
+        } else {
             return $ids;
         }
 
@@ -100,31 +108,35 @@ final class ProductService
      * @param array $qtys
      * @return bool
      */
-    public function addStoresToNewProducts(Product $product, array $stores,array $qtys): bool
+    public function addStoresToNewProducts(Product $product, array $stores, array $qtys): bool
     {
         $insertData = [];
 
         foreach ($stores as $k => $v) {
-            $value = (int)$v;
-            foreach ($qtys as $key => $qty){
-                if ($value !== 0 && $k === $key) {
-                    $insertData[] = [
-                        'store_id' => $value,
-                        'product_id' => $product->id,
-                        'quantity' => $qty,
+            if (isset($qtys[$k]) && (int)$v !== 0) {
+                $insertData[] = [
+                    'store_id' => (int)$v,
+                    'product_id' => $product->id,
+                    'quantity' => $qtys[$k],
                 ];
-                }
             }
-
         }
         if (!empty($insertData)) {
-            DB::table('product_store')
-                ->insert($insertData);
+            foreach ($insertData as $k => $v) {
+                DB::table('product_store')
+                    ->updateOrInsert([
+                        'store_id'      => $v['store_id'],
+                        'product_id'    => $v['product_id'],
+                    ],[
+                        'quantity'      => $v['quantity']
+                    ]);
+            }
             return true;
         } else {
             return false;
         }
     }
+
     public function checkStoresForExisting(array $ids): array
     {
         $collection = $this->store->query()->findMany($ids);
@@ -140,10 +152,67 @@ final class ProductService
                 unset($ids[$k]);
             }
         }
-        if (empty($ids)){
+        if (empty($ids)) {
             throw new \DomainException('Таких складов не существует');
-        } else{
+        } else {
             return $ids;
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @param array $categories
+     * @return bool
+     */
+    public function updateCategoriesToNewProducts(Product $product, array $categories): bool
+    {
+        $insertData = [];
+
+        foreach ($categories as $v) {
+            $value = (int)$v;
+            if ($value !== 0) {
+                $insertData[] = [
+                    'product_id' => $product->id,
+                    'category_id' => $value,
+                    'created_at' => (new DateTime())->format('Y-m-d h:i:s'),
+                    'updated_at' => (new DateTime())->format('Y-m-d h:i:s'),
+                ];
+            }
+        }
+        if (!empty($insertData)) {
+            DB::table('category_product')
+                ->update($insertData);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @param array $stores
+     * @param array $qtys
+     * @return bool
+     */
+    public function updateStoresToNewProducts(Product $product, array $stores, array $qtys): bool
+    {
+        $insertData = [];
+
+        foreach ($stores as $k => $v) {
+            if (isset($qtys[$k]) && (int)$v !== 0) {
+                $insertData[] = [
+                    'store_id' => (int)$v,
+                    'product_id' => $product->id,
+                    'quantity' => $qtys[$k],
+                ];
+            }
+        }
+        if (!empty($insertData)) {
+            DB::table('product_store')
+                ->update($insertData);
+            return true;
+        } else {
+            return false;
         }
     }
 
