@@ -1,0 +1,15 @@
+FROM php:7.4-fpm
+
+RUN apt-get update && apt-get install -y libmcrypt-dev mariadb-client libpng-dev libjpeg-dev && pecl install mcrypt-1.0.3 \
+    && docker-php-ext-install pdo_mysql && docker-php-ext-enable mcrypt && pecl install xdebug-2.9.8 \
+    && docker-php-ext-enable xdebug
+
+RUN docker-php-ext-configure gd --with-jpeg
+
+RUN docker-php-ext-install gd
+
+COPY ./docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+WORKDIR /var/www
+
+ADD . /var/www
