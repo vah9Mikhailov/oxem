@@ -6,6 +6,8 @@ namespace App\Http\Controllers\API;
 use App\Models\Product\Dto\InsertProduct;
 use App\Models\Product\Dto\UpdateProduct as UpdateProduct;
 use App\Models\Product\Entity\Product;
+use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
+use App\Models\Product\UseCase\Destroy\Handler as DestroyHandler;
 use App\Models\Product\UseCase\Index\Command;
 use App\Models\Product\UseCase\Index\Handler;
 use App\Models\Product\UseCase\Show\Command as ShowCommand;
@@ -16,8 +18,6 @@ use App\Models\Product\UseCase\Update\Command as UpdateCommand;
 use App\Models\Product\UseCase\Update\Handler as UpdateHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
 
 class ProductController extends RespController
@@ -168,13 +168,22 @@ class ProductController extends RespController
      */
     public function destroy($id)
     {
-        $product = Product::query()->find($id);
+
+        try {
+            $command = new DestroyCommand($id);
+            $handle = new DestroyHandler();
+            return $this->getResponse($handle->handle($command),'Товар успешно удалён');
+        } catch (\DomainException $e){
+            return $this->getError($e->getMessage());
+        }
+
+        /*$product = Product::query()->find($id);
         if (is_null($product)) {
             return $this->getError('Товар не найден');
         } else {
             $product->delete();
             $product->categories()->sync([]);
             return $this->getResponse($product->toArray(), 'Товар удалён');
-        }
+        }*/
     }
 }

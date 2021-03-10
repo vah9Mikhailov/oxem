@@ -160,60 +160,18 @@ final class ProductService
     }
 
     /**
-     * @param Product $product
-     * @param array $categories
-     * @return bool
+     * @param int $id
      */
-    public function updateCategoriesToNewProducts(Product $product, array $categories): bool
+    public function deleteIdProductForExistingOnCategories(int $id)
     {
-        $insertData = [];
-
-        foreach ($categories as $v) {
-            $value = (int)$v;
-            if ($value !== 0) {
-                $insertData[] = [
-                    'product_id' => $product->id,
-                    'category_id' => $value,
-                    'created_at' => (new DateTime())->format('Y-m-d h:i:s'),
-                    'updated_at' => (new DateTime())->format('Y-m-d h:i:s'),
-                ];
-            }
-        }
-        if (!empty($insertData)) {
-            DB::table('category_product')
-                ->update($insertData);
-            return true;
-        } else {
-            return false;
-        }
+        DB::table('category_product')->where('product_id','=',"$id")->delete();
     }
 
     /**
-     * @param Product $product
-     * @param array $stores
-     * @param array $qtys
-     * @return bool
+     * @param int $id
      */
-    public function updateStoresToNewProducts(Product $product, array $stores, array $qtys): bool
+    public function deleteIdProductForExistingOnStores(int $id)
     {
-        $insertData = [];
-
-        foreach ($stores as $k => $v) {
-            if (isset($qtys[$k]) && (int)$v !== 0) {
-                $insertData[] = [
-                    'store_id' => (int)$v,
-                    'product_id' => $product->id,
-                    'quantity' => $qtys[$k],
-                ];
-            }
-        }
-        if (!empty($insertData)) {
-            DB::table('product_store')
-                ->update($insertData);
-            return true;
-        } else {
-            return false;
-        }
+        DB::table('product_store')->where('product_id','=',"$id")->delete();
     }
-
 }
