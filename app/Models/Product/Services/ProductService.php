@@ -6,8 +6,9 @@ namespace App\Models\Product\Services;
 
 use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
-use App\Models\Store;
+use App\Models\Store\Entity\Store;
 use DateTime;
+use DomainException;
 use Illuminate\Support\Facades\DB;
 
 final class ProductService
@@ -95,7 +96,7 @@ final class ProductService
             }
         }
         if (empty($ids)) {
-            throw new \DomainException('Таких категорий не существует');
+            throw new DomainException('Таких категорий не существует');
         } else {
             return $ids;
         }
@@ -153,7 +154,7 @@ final class ProductService
             }
         }
         if (empty($ids)) {
-            throw new \DomainException('Таких складов не существует');
+            throw new DomainException('Таких складов не существует');
         } else {
             return $ids;
         }

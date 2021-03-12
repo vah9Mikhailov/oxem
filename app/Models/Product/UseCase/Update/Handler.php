@@ -7,7 +7,7 @@ namespace App\Models\Product\UseCase\Update;
 use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
 use App\Models\Product\Services\ProductService;
-use App\Models\Store;
+use App\Models\Store\Entity\Store;
 
 class Handler
 {

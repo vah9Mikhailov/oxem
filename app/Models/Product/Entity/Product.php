@@ -3,15 +3,16 @@
 namespace App\Models\Product\Entity;
 
 use App\Dto\UpdateProduct;
-use App\Models\Category;
+use App\Models\Category\Entity\Category;
 use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Product\UseCase\Index\Index;
 use App\Models\Product\UseCase\Show\Command as ShowCommand;
 use App\Models\Product\UseCase\Store\Command;
 use App\Models\Product\UseCase\Update\Command as UpdateCommand;
-use App\Models\Store;
+use App\Models\Store\Entity\Store;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
 class Product extends Model
@@ -26,7 +27,7 @@ class Product extends Model
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function categories()
     {
@@ -34,17 +35,15 @@ class Product extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function stores()
     {
         return $this->belongsToMany(Store::class);
     }
 
-    /**
-     * @param UpdateProduct $dto
-     */
-    public function updateProductInfo(UpdateProduct $dto)
+
+    /*public function updateProductInfo(UpdateProduct $dto)
     {
         if (!empty($this->id)) {
             $this->name = $dto->getName();
@@ -56,11 +55,7 @@ class Product extends Model
         }
     }
 
-    /**
-     * @param int $productId
-     * @param string $categories
-     * @return bool
-     */
+
     private function addProductsToCategory(int $productId, string $categories)
     {
         $ids = explode(",", $categories);
@@ -78,10 +73,7 @@ class Product extends Model
         return true;
     }
 
-    /**
-     * @param $productId
-     * @return array
-     */
+
     private function getProductCategories($productId): array
     {
         $result = [];
@@ -99,11 +91,7 @@ class Product extends Model
         return $result;
     }
 
-    /**
-     * @param array $ids
-     * @param int $productId
-     * @return bool
-     */
+
     private function assignCategoryToProduct(array $ids, int $productId)
     {
         foreach ($ids as $id) {
@@ -115,7 +103,7 @@ class Product extends Model
             ]);
         }
         return true;
-    }
+    }*/
 
     /**
      * @param Sort $sortType

@@ -58,6 +58,9 @@ class Command
 
     }
 
+    /**
+     * @param InsertProduct $dto
+     */
     private function validate(InsertProduct $dto)
     {
         Assert::stringNotEmpty($dto->getName(),"Поле name должно быть строкой");
