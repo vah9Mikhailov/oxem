@@ -4,7 +4,7 @@
 namespace App\Models\Product\UseCase\Store;
 
 
-use App\Models\Category;
+use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
 use App\Models\Product\Services\ProductService;
 use App\Models\Store;

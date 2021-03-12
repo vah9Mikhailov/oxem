@@ -4,7 +4,9 @@ namespace App\Models\Product\Entity;
 
 use App\Dto\UpdateProduct;
 use App\Models\Category;
+use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Product\UseCase\Index\Index;
+use App\Models\Product\UseCase\Show\Command as ShowCommand;
 use App\Models\Product\UseCase\Store\Command;
 use App\Models\Product\UseCase\Update\Command as UpdateCommand;
 use App\Models\Store;
@@ -155,10 +157,26 @@ class Product extends Model
     }
 
     /**
+     * @param ShowCommand $command
+     * @return Product
+     */
+    public function showProduct(ShowCommand $command): Product
+    {
+        /**
+         * @var $product Product
+         */
+        $product = $this->query()->find($command->getId());
+        if (is_null($product)) {
+            throw new \DomainException("Товара с id={$command->getId()} не существует");
+        }
+        return $product;
+    }
+
+    /**
      * @param UpdateCommand $command
      * @return Product
      */
-    public function updateProduct(UpdateCommand $command):Product
+    public function updateProduct(UpdateCommand $command): Product
     {
         /**
          * @var $product Product
@@ -174,6 +192,25 @@ class Product extends Model
             throw new \DomainException('Товар не найден');
         }
         return $product;
+    }
+
+    /**
+     * @param DestroyCommand $command
+     * @return Product
+     * @throws \Exception
+     */
+    public function deleteProduct(DestroyCommand $command): Product
+    {
+        /**
+         * @var $product Product
+         */
+        $product = $this->query()->find($command->getId());
+        if (is_null($product)) {
+            throw new \DomainException("Продукта с id = {$command->getId()} не существует ");
+        } else {
+            $product->delete();
+            return $product;
+        }
     }
 
 

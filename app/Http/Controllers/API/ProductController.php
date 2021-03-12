@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Product\Dto\InsertProduct;
 use App\Models\Product\Dto\UpdateProduct as UpdateProduct;
-use App\Models\Product\Entity\Product;
 use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Product\UseCase\Destroy\Handler as DestroyHandler;
 use App\Models\Product\UseCase\Index\Command;
@@ -16,6 +15,7 @@ use App\Models\Product\UseCase\Store\Command as InsertCommand;
 use App\Models\Product\UseCase\Store\Handler as InsertHandler;
 use App\Models\Product\UseCase\Update\Command as UpdateCommand;
 use App\Models\Product\UseCase\Update\Handler as UpdateHandler;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
@@ -164,13 +164,13 @@ class ProductController extends RespController
     /**
      * @param $id
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy($id)
     {
 
         try {
-            $command = new DestroyCommand($id);
+            $command = new DestroyCommand((int)$id);
             $handle = new DestroyHandler();
             return $this->getResponse($handle->handle($command),'Товар успешно удалён');
         } catch (\DomainException $e){

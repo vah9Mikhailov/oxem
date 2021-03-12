@@ -14,11 +14,9 @@ class Handler
      */
     public function handle(Command $command): array
     {
-        $product = Product::query()->find($command->getId());
-        if (is_null($product)) {
-            throw new \DomainException("Товара с таким id={$command->getId()} не существует");
-        } else {
-            return $product->toArray();
-        }
+        $product = new Product();
+        $product = $product->showProduct($command);
+        return $product->toArray();
+
     }
 }

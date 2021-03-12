@@ -4,7 +4,7 @@
 namespace App\Models\Product\Services;
 
 
-use App\Models\Category;
+use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
 use App\Models\Store;
 use DateTime;
