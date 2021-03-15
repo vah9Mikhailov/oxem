@@ -40,17 +40,6 @@ class StoreController extends RespController
         } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
-
-        /* $data = $request->all();
-         $validator = Validator::make($data, [
-             'name' => 'required|unique:stores'
-         ]);
-
-         if ($validator->fails()){
-             return $this->getError('Ошибка валидации',$validator->errors());
-         }
-         $store = Store::query()->create($data);
-         return $this->getResponse($store->toArray(),'Склад успешно создан');*/
     }
 
     /**
@@ -71,25 +60,6 @@ class StoreController extends RespController
      */
     public function update(Request $request, $id)
     {
-
-        /*$store = Store::query()->find($id);
-        if (is_null($store))
-        {
-            return $this->getError('Склад не найден');
-        } else{
-            $data = $request->all();
-
-            $validator = Validator::make($data, [
-                'name' => 'required|unique:stores'
-            ]);
-            if ($validator->fails()){
-                return $this->getError('Ошибка валидации',$validator->errors());
-            }
-
-            $store->name = $data['name'];
-            $store->update();
-            return $this->getResponse($store->toArray(),'Склад обновлён');
-        }*/
         try {
             $command = new UpdateCommand(
                 (int)$id,
@@ -100,8 +70,6 @@ class StoreController extends RespController
         } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
-
-
     }
 
     /**
@@ -114,17 +82,9 @@ class StoreController extends RespController
         try {
             $command = new DestroyCommand((int)$id);
             $handle = new DestroyHandler();
-            return $this->getResponse($handle->handle($command),'Склад успешно удалён');
+            return $this->getResponse($handle->handle($command), 'Склад успешно удалён');
         } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
-
-        /*$store = Store::query()->find($id);
-        if (is_null($store)) {
-            return $this->getError('Склад не найден');
-        }
-        $store->delete();
-        return $this->getResponse($store->toArray(), 'Склад удалён');*/
-
     }
 }

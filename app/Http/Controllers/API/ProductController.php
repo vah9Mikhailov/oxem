@@ -168,7 +168,6 @@ class ProductController extends RespController
      */
     public function destroy($id)
     {
-
         try {
             $command = new DestroyCommand((int)$id);
             $handle = new DestroyHandler();
@@ -176,14 +175,5 @@ class ProductController extends RespController
         } catch (\DomainException $e){
             return $this->getError($e->getMessage());
         }
-
-        /*$product = Product::query()->find($id);
-        if (is_null($product)) {
-            return $this->getError('Товар не найден');
-        } else {
-            $product->delete();
-            $product->categories()->sync([]);
-            return $this->getResponse($product->toArray(), 'Товар удалён');
-        }*/
     }
 }
