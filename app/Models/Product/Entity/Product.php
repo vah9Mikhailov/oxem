@@ -110,7 +110,7 @@ class Product extends Model
      * @param int $count
      * @return array
      */
-    public function getSortProduct(Sort $sortType, int $count = 50): array
+    public function getSort(Sort $sortType, int $count = 50): array
     {
         switch ($sortType->getCurrent()) {
             case Sort::DATA_UP:
@@ -130,7 +130,7 @@ class Product extends Model
      * @param Command $command
      * @return $this
      */
-    public function createProduct(Command $command): Product
+    public function create(Command $command): Product
     {
         $this->name = $command->getName();
         $this->description = $command->getDescription();
@@ -148,7 +148,7 @@ class Product extends Model
      * @param ShowCommand $command
      * @return Product
      */
-    public function showProduct(ShowCommand $command): Product
+    public function show(ShowCommand $command): Product
     {
         /**
          * @var $product Product
@@ -171,9 +171,15 @@ class Product extends Model
          */
         $product = $this->query()->find($command->getId());
         if (!is_null($product)) {
-            $product->name = $command->getName();
-            $product->description = $command->getDescription();
-            $product->price = $command->getPrice();
+            if (!is_null($command->getName())) {
+                $product->name = $command->getName();
+            }
+            if (!is_null($command->getDescription())) {
+                $product->description = $command->getDescription();
+            }
+            if (!is_null($command->getPrice())) {
+                $product->price = $command->getPrice();
+            }
             $product->external_id = $command->getExternalId();
             $product->update();
         } else {

@@ -18,7 +18,7 @@ class Handler
         /*$categoryService = new CategoryService(new Category());
         $categoryService->checkParentIdForExistingId($command->getParentId());*/
         $category = new Category();
-        $category = $category->createCategory($command);
+        $category = $category->create($command);
         return $category->toArray();
     }
 }

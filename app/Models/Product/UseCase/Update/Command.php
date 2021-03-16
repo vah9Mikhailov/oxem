@@ -4,7 +4,7 @@
 namespace App\Models\Product\UseCase\Update;
 
 
-use App\Models\Product\Dto\UpdateProduct;
+use App\Models\Product\Dto\Update;
 use DomainException;
 use Webmozart\Assert\Assert;
 
@@ -52,9 +52,9 @@ class Command
 
     /**
      * Command constructor.
-     * @param UpdateProduct $dto
+     * @param Update $dto
      */
-    public function __construct(UpdateProduct $dto)
+    public function __construct(Update $dto)
     {
         $this->validate($dto);
         $this->id = $dto->getId();
@@ -68,15 +68,15 @@ class Command
     }
 
     /**
-     * @param UpdateProduct $dto
+     * @param Update $dto
      */
-    public function validate(UpdateProduct $dto)
+    public function validate(Update $dto)
     {
-        Assert::stringNotEmpty($dto->getName(), "Поле name должно быть строкой!");
-        Assert::stringNotEmpty($dto->getDescription(), "Поле description должно быть строкой!");
-        Assert::float($dto->getPrice(), "Поле price должно быть числом!");
-        Assert::stringNotEmpty($dto->getExternalId(), "Поле external_id должно быть строкой!");
-        if (empty($dto->getCategoryIds())) {
+        Assert::nullOrString($dto->getName(), "Поле name должно быть строкой!");
+        Assert::nullOrString($dto->getDescription(), "Поле description должно быть строкой!");
+        Assert::nullOrFloat($dto->getPrice(), "Поле price должно быть числом!");
+        Assert::nullOrString($dto->getExternalId(), "Поле external_id должно быть строкой!");
+        /*if (empty($dto->getCategoryIds())) {
             throw new DomainException('Category_id пуст');
         }
 
@@ -86,16 +86,23 @@ class Command
 
         if (empty($dto->getQty())) {
             throw new DomainException('Quantity пуст');
+        }*/
+        if (is_countable($dto->getQty()) && is_countable($dto->getStoreIds())) {
+            if (count($dto->getStoreIds()) !== count($dto->getQty())) {
+                throw new DomainException('Количество складов не соответствует числу количества товаров');
+            }
+        }
+        if (empty($dto->getQty()) || empty($dto->getStoreIds())) {
+            throw new DomainException('Один из массивов quantity или store_id пуст');
         }
 
-        if (count($dto->getStoreIds()) !== count($dto->getQty())) {
-            throw new DomainException('Количество складов не соответствует числу количества товаров');
+        if (empty(array_intersect_key($dto->getStoreIds(),$dto->getQty()))) {
+            throw new DomainException('Ключи не совпадают');
         }
 
         if ($dto->getId() === 0) {
             throw new DomainException('Некорректный id');
         }
-
     }
 
     /**
@@ -109,7 +116,7 @@ class Command
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -117,7 +124,7 @@ class Command
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -125,7 +132,7 @@ class Command
     /**
      * @return float
      */
-    public function getPrice(): float
+    public function getPrice(): ?float
     {
         return $this->price;
     }
@@ -141,7 +148,7 @@ class Command
     /**
      * @return array
      */
-    public function getCategoryIds(): array
+    public function getCategoryIds(): ?array
     {
         return $this->categoryIds;
     }
@@ -149,7 +156,7 @@ class Command
     /**
      * @return array
      */
-    public function getStoreIds(): array
+    public function getStoreIds(): ?array
     {
         return $this->storeIds;
     }
@@ -157,7 +164,7 @@ class Command
     /**
      * @return array
      */
-    public function getQty(): array
+    public function getQty(): ?array
     {
         return $this->qty;
     }

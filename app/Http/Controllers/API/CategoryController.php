@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API;
 
 
-use App\Models\Category\Dto\InsertCategory;
-use App\Models\Category\Dto\UpdateCategory;
+use App\Models\Category\Dto\Insert;
+use App\Models\Category\Dto\Update;
 use App\Models\Category\Entity\Category;
 use App\Models\Category\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Category\UseCase\Destroy\Handler as DestroyHandler;
@@ -42,9 +42,8 @@ class CategoryController extends RespController
      */
     public function store(Request $request)
     {
-
         try {
-            $dto = new InsertCategory(
+            $dto = new Insert(
                 (string)$request->post('name'),
                 (int)$request->post('parent_id'),
                 Uuid::uuid4()->toString()
@@ -82,10 +81,10 @@ class CategoryController extends RespController
     public function update(Request $request, $id)
     {
         try {
-            $dto = new UpdateCategory(
+            $dto = new Update(
                 (int)$id,
-                (string)$request->query('name'),
-                (int)$request->query('parent_id'),
+                $request->query('name') ? (string)$request->query('name') : null,
+                $request->query('parent_id') ? (int)$request->query('parent_id') : null,
                 Uuid::uuid4()->toString(),
             );
             $command = new UpdateCommand($dto);

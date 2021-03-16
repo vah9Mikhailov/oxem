@@ -45,7 +45,7 @@ class Category extends Model
      * @param Command $command
      * @return $this
      */
-    public function createCategory(Command $command): Category
+    public function create(Command $command): Category
     {
         $this->name = $command->getName();
         $this->parent_id = $this->checkParentIdForExistingId($command->getParentId());
@@ -66,7 +66,7 @@ class Category extends Model
     {
         $result = Category::query()->find($id);
         if (is_null($result)) {
-            throw new \DomainException("Категории с id = {$id} не существует");
+            throw new \DomainException("Родительской категории с id = {$id} не существует");
         } elseif ($result->id == $id) {
             return $id;
         }
@@ -119,8 +119,12 @@ class Category extends Model
         if (is_null($category)) {
             throw new \DomainException("Категории с id = {$command->getId()} не существует");
         } else {
-            $category->name = $command->getName();
-            $category->parent_id = $this->checkParentIdForExistingId($command->getParentId());
+            if (!is_null($command->getName())) {
+                $category->name = $command->getName();
+            }
+            if (!is_null($command->getParentId())) {
+                $category->parent_id = $this->checkParentIdForExistingId($command->getParentId());
+            }
             $category->external_id = $command->getExternalId();
             $category->update();
             if ($category->update()) {
@@ -146,7 +150,7 @@ class Category extends Model
             throw new \DomainException("Категории с id = {$command->getId()} не существует");
         } else {
             $category->delete();
-            DB::table('category_product')->where('category_id','=',"{$command->getId()}")->delete();
+            DB::table('category_product')->where('category_id', '=', "{$command->getId()}")->delete();
             return $category;
         }
     }

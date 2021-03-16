@@ -4,7 +4,7 @@
 namespace App\Models\Product\Dto;
 
 
-final class UpdateProduct
+final class Update
 {
 
     /**
@@ -35,11 +35,6 @@ final class UpdateProduct
     /**
      * @var array
      */
-    private $storeId;
-
-    /**
-     * @var array
-     */
     private $qty;
 
     /**
@@ -65,13 +60,13 @@ final class UpdateProduct
      */
     public function __construct(
         int $id,
-        string $name,
-        string $description,
-        float $price,
+        ?string $name,
+        ?string $description,
+        ?float $price,
         string $externalId,
-        array $categoryIds,
-        array $storeIds,
-        array $qty
+        ?array $categoryIds,
+        ?array $storeIds,
+        ?array $qty
     )
     {
         $this->id = $id;
@@ -87,7 +82,7 @@ final class UpdateProduct
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -95,7 +90,7 @@ final class UpdateProduct
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -104,7 +99,7 @@ final class UpdateProduct
     /**
      * @return float
      */
-    public function getPrice(): float
+    public function getPrice(): ?float
     {
         return $this->price;
     }
@@ -120,7 +115,7 @@ final class UpdateProduct
     /**
      * @return array
      */
-    public function getCategoryIds(): array
+    public function getCategoryIds(): ?array
     {
         return $this->categoryIds;
     }
@@ -128,7 +123,7 @@ final class UpdateProduct
     /**
      * @return array
      */
-    public function getStoreIds(): array
+    public function getStoreIds(): ?array
     {
         return $this->storeIds;
     }
@@ -136,7 +131,7 @@ final class UpdateProduct
     /**
      * @return array
      */
-    public function getQty(): array
+    public function getQty(): ?array
     {
         return $this->qty;
     }

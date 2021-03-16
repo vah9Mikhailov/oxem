@@ -14,6 +14,6 @@ class Handler
      */
     public function handle(Command $command): array
     {
-        return (new Product())->getSortProduct($command->getSortType());
+        return (new Product())->getSort($command->getSortType());
     }
 }

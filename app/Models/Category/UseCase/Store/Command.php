@@ -4,7 +4,7 @@
 namespace App\Models\Category\UseCase\Store;
 
 
-use App\Models\Category\Dto\InsertCategory;
+use App\Models\Category\Dto\Insert;
 use Webmozart\Assert\Assert;
 
 class Command
@@ -29,7 +29,7 @@ class Command
      */
     private $externalId;
 
-    public function __construct(InsertCategory $dto)
+    public function __construct(Insert $dto)
     {
         $this->validate($dto);
         $this->name = $dto->getName();
@@ -37,7 +37,7 @@ class Command
         $this->externalId = $dto->getExternalId();
     }
 
-    private function validate(InsertCategory $dto)
+    private function validate(Insert $dto)
     {
         Assert::stringNotEmpty($dto->getName(), 'Поле name должно быть строкой');
         Assert::greaterThan($dto->getParentId(),1,'Поле parent_id не может быть строкой или 0');

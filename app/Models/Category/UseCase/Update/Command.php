@@ -4,7 +4,7 @@
 namespace App\Models\Category\UseCase\Update;
 
 
-use App\Models\Category\Dto\UpdateCategory;
+use App\Models\Category\Dto\Update;
 use Webmozart\Assert\Assert;
 
 class Command
@@ -32,9 +32,9 @@ class Command
 
     /**
      * Command constructor.
-     * @param UpdateCategory $dto
+     * @param Update $dto
      */
-    public function __construct(UpdateCategory $dto)
+    public function __construct(Update $dto)
     {
         $this->validate($dto);
         $this->id = $dto->getId();
@@ -44,12 +44,12 @@ class Command
     }
 
     /**
-     * @param UpdateCategory $dto
+     * @param Update $dto
      */
-    public function validate(UpdateCategory $dto)
+    public function validate(Update $dto)
     {
-        Assert::stringNotEmpty($dto->getName(), 'Поле name должно быть строкой');
-        Assert::greaterThan($dto->getParentId(),1, 'Поле parent_id должно быть числом');
+        Assert::nullOrString($dto->getName(), 'Поле name должно быть строкой');
+        Assert::nullOrGreaterThan($dto->getParentId(), 1, 'Поле parent_id должно быть числом');
         Assert::stringNotEmpty($dto->getExternalId(), "Поле external_id должно быть строкой");
 
         if ($dto->getId() === 0) {
@@ -68,7 +68,7 @@ class Command
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -76,7 +76,7 @@ class Command
     /**
      * @return int
      */
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
         return $this->parentId;
     }

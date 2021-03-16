@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API;
 
 
-use App\Models\Product\Dto\InsertProduct;
-use App\Models\Product\Dto\UpdateProduct as UpdateProduct;
+use App\Models\Product\Dto\Insert;
+use App\Models\Product\Dto\Update;
 use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Product\UseCase\Destroy\Handler as DestroyHandler;
 use App\Models\Product\UseCase\Index\Command;
@@ -74,7 +74,7 @@ class ProductController extends RespController
                 $quantity[] = $requestQuantity;
             }
 
-            $dto = new InsertProduct(
+            $dto = new Insert(
                 (string)$request->post('name'),
                 (string)$request->post('description'),
                 (float)$request->post('price'),
@@ -142,15 +142,15 @@ class ProductController extends RespController
             }
 
 
-            $dto = new UpdateProduct(
+            $dto = new Update(
                 (int)$id,
-                (string)$request->query('name'),
-                (string)$request->query('description'),
-                (float)$request->query('price'),
+                $request->query('name') ? (string)$request->query('name') : null,
+                $request->query('description') ? (string)$request->query('description') : null,
+                $request->query('price') ? (float)$request->query('price') : null,
                 Uuid::uuid4()->toString(),
-                $categs,
-                $sts,
-                $qty,
+                $categs ? $categs : null,
+                $sts ? $sts : null,
+                $qty ? $qty : null,
             );
 
             $command = new UpdateCommand($dto);
@@ -171,8 +171,8 @@ class ProductController extends RespController
         try {
             $command = new DestroyCommand((int)$id);
             $handle = new DestroyHandler();
-            return $this->getResponse($handle->handle($command),'Товар успешно удалён');
-        } catch (\DomainException $e){
+            return $this->getResponse($handle->handle($command), 'Товар успешно удалён');
+        } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
     }

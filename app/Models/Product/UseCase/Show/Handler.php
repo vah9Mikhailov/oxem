@@ -15,7 +15,7 @@ class Handler
     public function handle(Command $command): array
     {
         $product = new Product();
-        $product = $product->showProduct($command);
+        $product = $product->show($command);
         return $product->toArray();
 
     }

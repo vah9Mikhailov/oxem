@@ -4,7 +4,7 @@
 namespace App\Models\Product\UseCase\Store;
 
 
-use App\Models\Product\Dto\InsertProduct;
+use App\Models\Product\Dto\Insert;
 use DomainException;
 use Webmozart\Assert\Assert;
 
@@ -45,7 +45,7 @@ class Command
      */
     private $qty;
 
-    public function __construct(InsertProduct $dto)
+    public function __construct(Insert $dto)
     {
         $this->validate($dto);
         $this->name = $dto->getName();
@@ -59,9 +59,9 @@ class Command
     }
 
     /**
-     * @param InsertProduct $dto
+     * @param Insert $dto
      */
-    private function validate(InsertProduct $dto)
+    private function validate(Insert $dto)
     {
         Assert::stringNotEmpty($dto->getName(),"Поле name должно быть строкой");
         Assert::stringNotEmpty($dto->getDescription(),"Поле description должно быть строкой");

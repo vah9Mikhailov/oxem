@@ -4,8 +4,12 @@
 namespace App\Models\Category\Dto;
 
 
-class InsertCategory
+class Update
 {
+    /**
+     * @var int
+     */
+    private $id;
 
     /**
      * @var string
@@ -23,27 +27,37 @@ class InsertCategory
     private $externalId;
 
     /**
-     * InsertCategory constructor.
+     * UpdateCategory constructor.
      * @param int $id
      * @param string $name
      * @param int $parentId
      * @param string $externalId
      */
     public function __construct(
-        string $name,
-        int $parentId,
+        int $id,
+        ?string $name,
+        ?int $parentId,
         string $externalId
     )
     {
+        $this->id = $id;
         $this->name = $name;
         $this->parentId = $parentId;
         $this->externalId = $externalId;
     }
 
     /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -51,7 +65,7 @@ class InsertCategory
     /**
      * @return int
      */
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
         return $this->parentId;
     }
@@ -63,13 +77,4 @@ class InsertCategory
     {
         return $this->externalId;
     }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
 }

@@ -18,7 +18,7 @@ class Handler
     public function handle(Command $command)
     {
         $product = new Product();
-        $product = $product->createProduct($command);
+        $product = $product->create($command);
         $productService = new ProductService(new Product(),new Category(),new Store());
         $ids = $productService->checkCategoriesForExisting($command->getCategoryIds());
         $ides = $productService->checkStoresForExisting($command->getStoreIds());
