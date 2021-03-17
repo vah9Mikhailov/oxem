@@ -24,7 +24,6 @@ class Insert
 
     /**
      * InsertCategory constructor.
-     * @param int $id
      * @param string $name
      * @param int $parentId
      * @param string $externalId

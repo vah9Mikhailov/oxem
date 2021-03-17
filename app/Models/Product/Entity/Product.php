@@ -6,6 +6,7 @@ use App\Dto\UpdateProduct;
 use App\Models\Category\Entity\Category;
 use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Product\UseCase\Index\Index;
+use App\Models\Product\UseCase\InsertOrUpdate\Command as InsertOrUpdateCommand;
 use App\Models\Product\UseCase\Show\Command as ShowCommand;
 use App\Models\Product\UseCase\Store\Command;
 use App\Models\Product\UseCase\Update\Command as UpdateCommand;
@@ -204,6 +205,37 @@ class Product extends Model
         } else {
             $product->delete();
             return $product;
+        }
+    }
+
+    /**
+     * @param InsertOrUpdateCommand $command
+     * @return $this
+     */
+    public function insertOrUpdate(InsertOrUpdateCommand $command)
+    {
+        /**
+         * @var $product Product
+         */
+        $product = $this->query()->where('external_id','=',$command->getExternalId())->first();
+        if (is_null($product)) {
+            $this->name = $command->getName();
+            $this->description = $command->getDescription();
+            $this->price = $command->getPrice();
+            $this->external_id = $command->getExternalId();
+            $this->save();
+            if ($this->save()) {
+                return $this;
+            }
+        } else {
+            $product->name = $command->getName();
+            $product->description = $command->getDescription();
+            $product->price = $command->getPrice();
+            $product->external_id = $command->getExternalId();
+            $product->update();
+            if ($product->update()) {
+                return $product;
+            }
         }
     }
 

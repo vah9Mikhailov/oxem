@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Models\Category\UseCase\Store;
+namespace App\Models\Category\UseCase\InsertOrUpdate;
 
 
 use App\Models\Category\Entity\Category;
@@ -15,7 +15,7 @@ class Handler
     public function handle(Command $command): array
     {
         $category = new Category();
-        $category = $category->create($command);
+        $category = $category->updateOrInsert($command);
         return $category->toArray();
     }
 }

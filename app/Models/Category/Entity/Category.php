@@ -4,6 +4,7 @@ namespace App\Models\Category\Entity;
 
 
 use App\Models\Category\UseCase\Destroy\Command as DestroyCommand;
+use App\Models\Category\UseCase\InsertOrUpdate\Command as UpdateOrInsertCommand;
 use App\Models\Category\UseCase\Show\Command as ShowCommand;
 use App\Models\Category\UseCase\Store\Command;
 use App\Models\Category\UseCase\Update\Command as UpdateCommand;
@@ -155,6 +156,35 @@ class Category extends Model
         }
     }
 
+    /**
+     * @param UpdateOrInsertCommand $command
+     * @return $this|Category
+     */
+    public function updateOrInsert(UpdateOrInsertCommand $command): Category
+    {
+        /**
+         * @var $category Category
+         */
+        $category = $this->query()->where('external_id','=',"{$command->getExternalId()}")->first();
+        if (is_null($category))
+        {
+            $this->name = $command->getName();
+            $this->parent_id = $command->getParentId();
+            $this->external_id = $command->getExternalId();
+            $this->save();
+            if ($this->save()) {
+                return $this;
+            }
+        } else {
+            $category->name = $command->getName();
+            $category->parent_id = $command->getParentId();
+            $category->external_id = $command->getExternalId();
+            $category->update();
+            if ($category->update()) {
+                return $category;
+            }
+        }
+    }
 }
 
 

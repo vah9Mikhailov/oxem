@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Category\Dto\Insert;
 use App\Models\Category\Dto\Update;
-use App\Models\Category\Entity\Category;
 use App\Models\Category\UseCase\Destroy\Command as DestroyCommand;
 use App\Models\Category\UseCase\Destroy\Handler as DestroyHandler;
 use App\Models\Category\UseCase\Index\Handler;
@@ -17,7 +16,6 @@ use App\Models\Category\UseCase\Update\Command as UpdateCommand;
 use App\Models\Category\UseCase\Update\Handler as UpdateHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
 
 class CategoryController extends RespController
