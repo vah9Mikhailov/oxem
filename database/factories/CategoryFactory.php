@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class CategoryFactory extends Factory
@@ -25,7 +25,7 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->word,
-            'parent_id' => $this->faker->numberBetween(0,10),
+            'parent_id' => $this->faker->numberBetween(1,15),
             'external_id' => Uuid::uuid4()->toString(),
         ];
     }

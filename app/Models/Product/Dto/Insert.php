@@ -4,7 +4,7 @@
 namespace App\Models\Product\Dto;
 
 
-final class InsertProduct
+final class Insert
 {
     /**
      * @var string

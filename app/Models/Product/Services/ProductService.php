@@ -4,9 +4,10 @@
 namespace App\Models\Product\Services;
 
 
-use App\Models\Category;
+use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
-use App\Models\Store;
+use App\Models\Product\UseCase\Store\Command;
+use App\Models\Store\Entity\Store;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 
@@ -40,27 +41,37 @@ final class ProductService
 
     /**
      * @param Product $product
-     * @param array $categories
+     * @param array|null $categories
      * @return bool
      */
-    public function addCategoriesToNewProducts(Product $product, array $categories): bool
+    public function addCategoriesToNewProducts(Product $product, ?array $categories): bool
     {
         $insertData = [];
-
-        foreach ($categories as $v) {
-            $value = (int)$v;
-            if ($value !== 0) {
-                $insertData[] = [
-                    'product_id' => $product->id,
-                    'category_id' => $value,
-                    'created_at' => (new DateTime())->format('Y-m-d h:i:s'),
-                    'updated_at' => (new DateTime())->format('Y-m-d h:i:s'),
-                ];
+        if (!is_null($categories)) {
+            foreach ($categories as $v) {
+                if ((int)$v !== 0) {
+                    $insertData[] = [
+                        'product_id' => $product->id,
+                        'category_id' => (int)$v,
+                        'created_at' => (new DateTime())->format('Y-m-d h:i:s'),
+                        'updated_at' => (new DateTime())->format('Y-m-d h:i:s'),
+                    ];
+                }
             }
         }
+
         if (!empty($insertData)) {
-            DB::table('category_product')
-                ->insert($insertData);
+            foreach ($insertData as $k => $v) {
+                DB::table('category_product')
+                    ->updateOrInsert(['product_id' => $v['product_id'],
+                        'category_id' => $v['category_id'],
+                    ], [
+                        'category_id' => $v['category_id'],
+                        'created_at' => $v['created_at'],
+                        'updated_at' => $v['updated_at'],
+                    ]);
+            }
+
             return true;
         } else {
             return false;
@@ -68,83 +79,118 @@ final class ProductService
     }
 
     /**
-     * @param array $ids
-     * @return array
+     * @param array|null $ids
+     * @return array|null
      */
-    public function checkCategoriesForExisting(array $ids): array
+    public function checkCategoriesForExisting(?array $ids): ?array
     {
         $collection = $this->category->query()->findMany($ids);
-        foreach ($ids as $k => $v) {
-            $isset = false;
-            foreach ($collection as $value) {
-                if ($value->id == $v) {
-                    $isset = true;
-                    break;
+        if (!is_null($ids)) {
+            foreach ($ids as $k => $v) {
+                $isset = false;
+                foreach ($collection as $value) {
+                    if ($value->id == $v) {
+                        $isset = true;
+                        break;
+                    }
+                }
+                if (!$isset) {
+                    unset($ids[$k]);
                 }
             }
-            if (!$isset) {
-                unset($ids[$k]);
-            }
         }
-        if (empty($ids)){
-            throw new \DomainException('Таких категорий не существует');
-        } else{
-            return $ids;
-        }
-
+        return $ids;
     }
 
     /**
      * @param Product $product
-     * @param array $stores
-     * @param array $qtys
+     * @param array|null $stores
+     * @param array|null $qtys
      * @return bool
      */
-    public function addStoresToNewProducts(Product $product, array $stores,array $qtys): bool
+    public function addStoresToNewProducts(Product $product, ?array $stores, ?array $qtys): bool
     {
         $insertData = [];
-
-        foreach ($stores as $k => $v) {
-            $value = (int)$v;
-            foreach ($qtys as $key => $qty){
-                if ($value !== 0 && $k === $key) {
+        if (!is_null($stores)) {
+            foreach ($stores as $k => $v) {
+                if (isset($qtys[$k]) && (int)$v !== 0) {
                     $insertData[] = [
-                        'store_id' => $value,
+                        'store_id' => (int)$v,
                         'product_id' => $product->id,
-                        'quantity' => $qty,
-                ];
+                        'quantity' => $qtys[$k],
+                    ];
                 }
             }
-
         }
+
         if (!empty($insertData)) {
-            DB::table('product_store')
-                ->insert($insertData);
+            foreach ($insertData as $k => $v) {
+                DB::table('product_store')
+                    ->updateOrInsert([
+                        'store_id' => $v['store_id'],
+                        'product_id' => $v['product_id'],
+                    ], [
+                        'quantity' => $v['quantity']
+                    ]);
+            }
             return true;
         } else {
             return false;
         }
     }
-    public function checkStoresForExisting(array $ids): array
+
+    /**
+     * @param array|null $ids
+     * @return array|null
+     */
+    public function checkStoresForExisting(?array $ids): ?array
     {
         $collection = $this->store->query()->findMany($ids);
-        foreach ($ids as $k => $v) {
-            $isset = false;
-            foreach ($collection as $value) {
-                if ($value->id == $v) {
-                    $isset = true;
-                    break;
+        if (!is_null($ids)) {
+            foreach ($ids as $k => $v) {
+                $isset = false;
+                foreach ($collection as $value) {
+                    if ($value->id == $v) {
+                        $isset = true;
+                        break;
+                    }
+                }
+                if (!$isset) {
+                    unset($ids[$k]);
                 }
             }
-            if (!$isset) {
-                unset($ids[$k]);
-            }
         }
-        if (empty($ids)){
-            throw new \DomainException('Таких складов не существует');
-        } else{
-            return $ids;
-        }
+        return $ids;
     }
 
+    /**
+     * @param int $id
+     */
+    public function deleteIdProductForExistingOnCategories(int $id)
+    {
+        DB::table('category_product')->where('product_id', '=', "$id")->delete();
+    }
+
+    /**
+     * @param int $id
+     */
+    public function deleteIdProductForExistingOnStores(int $id)
+    {
+        DB::table('product_store')->where('product_id', '=', "$id")->delete();
+    }
+
+    /**
+     * @param Command $command
+     * @return array
+     */
+    public function handle(Command $command): array
+    {
+        $product = new Product();
+        $product = $product->insertOrUpdate($command);
+        $ids = $this->checkCategoriesForExisting($command->getCategoryIds());
+        $ides = $this->checkStoresForExisting($command->getStoreIds());
+        $this->addCategoriesToNewProducts($product,$ids);
+        $this->addStoresToNewProducts($product,$ides,$command->getQty());
+        return $product->toArray();
+    }
 }

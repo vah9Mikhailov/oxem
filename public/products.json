@@ -1,0 +1,5 @@
+[
+    {"external_id": 1, "name": "Product 111","description": "12qwasdzx", "price": 301.01, "category_id": [1,2], "quantity": 15, "store_id": 1},
+    {"external_id": 2, "name": "Product 22","description": "opissanie123", "price": 199.01, "category_id": [2,3], "quantity": 12, "store_id": 3},
+    {"external_id": 3, "name": "Product 333","description": "sadgh", "price": 889.01, "category_id": [3,6], "quantity": 10, "store_id": 5}
+]

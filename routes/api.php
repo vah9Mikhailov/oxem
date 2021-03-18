@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,5 +30,7 @@ Route::middleware('auth:api')->group( function (){
     Route::apiResource('categories', 'App\Http\Controllers\API\CategoryController');
     Route::apiResource('stores', 'App\Http\Controllers\API\StoreController');
     Route::post('logout', 'App\Http\Controllers\API\AuthController@logout');
+    Route::post('prods', 'App\Http\Controllers\API\CategsProdsController@storeProducts');
+    Route::post('categs', 'App\Http\Controllers\API\CategsProdsController@storeCategories');
 });
 

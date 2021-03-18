@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Dto\UpdateProductDto;
-use App\Models\Product\Dto\InsertProduct;
-use App\Models\Product\Entity\Product;
+
+use App\Models\Product\Dto\Insert;
+use App\Models\Product\Dto\Update;
+use App\Models\Product\UseCase\Destroy\Command as DestroyCommand;
+use App\Models\Product\UseCase\Destroy\Handler as DestroyHandler;
 use App\Models\Product\UseCase\Index\Command;
 use App\Models\Product\UseCase\Index\Handler;
 use App\Models\Product\UseCase\Show\Command as ShowCommand;
 use App\Models\Product\UseCase\Show\Handler as ShowHandler;
 use App\Models\Product\UseCase\Store\Command as InsertCommand;
 use App\Models\Product\UseCase\Store\Handler as InsertHandler;
+use App\Models\Product\UseCase\Update\Command as UpdateCommand;
+use App\Models\Product\UseCase\Update\Handler as UpdateHandler;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
 
 class ProductController extends RespController
@@ -71,7 +74,7 @@ class ProductController extends RespController
                 $quantity[] = $requestQuantity;
             }
 
-            $dto = new InsertProduct(
+            $dto = new Insert(
                 (string)$request->post('name'),
                 (string)$request->post('description'),
                 (float)$request->post('price'),
@@ -84,7 +87,7 @@ class ProductController extends RespController
             $handler = new InsertHandler();
 
             return $this->getResponse($handler->handle($command), 'Товар успешно добавлен');
-        } catch (\DomainException $e){
+        } catch (\DomainException $e) {
             return $this->getError($e->getMessage());
         }
 
@@ -112,60 +115,65 @@ class ProductController extends RespController
      */
     public function update(Request $request, $id)
     {
-        /**
-         * @var $product Product
-         */
-        $product = Product::query()->find($id);
-        if (is_null($product)) {
-            return $this->getError('Товар не найден');
-        } else {
-            $data = $request->all();
-            $validator = Validator::make($data, [
-                'name' => 'required|max:200',
-                'description' => 'required|max:1000',
-                'price' => 'required|numeric',
-                'quantity' => 'required|numeric',
-            ]);
-            $data['categories'] = $request->categories;
+        try {
+            $requestCategs = $request->query('categories');
+            $requestSts = $request->query('stores');
+            $requestQuanty = $request->query('quantity');
+            $categs = [];
+            $sts = [];
+            $qty = [];
 
-            if ($validator->fails()) {
-                return $this->getError('Ошибка валидации', $validator->errors());
+            if (is_array($requestCategs)) {
+                $categs = $requestCategs;
+            } elseif (is_string($requestCategs)) {
+                $categs[] = $requestCategs;
             }
 
-            $updateProductDto = new UpdateProductDto(
-                (string)$data['name'],
-                (string)$data['description'],
-                (float)$data['price'],
-                (string)$data['category_id']
+            if (is_array($requestSts)) {
+                $sts = $requestSts;
+            } elseif (is_string($requestSts)) {
+                $sts[] = $requestSts;
+            }
+
+            if (is_array($requestQuanty)) {
+                $qty = $requestQuanty;
+            } elseif (is_string($requestQuanty)) {
+                $qty[] = $requestQuanty;
+            }
+
+
+            $dto = new Update(
+                (int)$id,
+                $request->query('name') ? (string)$request->query('name') : null,
+                $request->query('description') ? (string)$request->query('description') : null,
+                $request->query('price') ? (float)$request->query('price') : null,
+                Uuid::uuid4()->toString(),
+                $categs ? $categs : null,
+                $sts ? $sts : null,
+                $qty ? $qty : null,
             );
 
-            $product->updateProductInfo($updateProductDto);
-
-            /*$product->name = $data['name'];
-            $product->description = $data['description'];
-            $product->price = $data['price'];
-            $product->quantity = $data['quantity'];
-            $product->categories()->sync($request->categories);
-            $product->update();*/
-            return $this->getResponse($product->toArray(), 'Товар обновлён');
+            $command = new UpdateCommand($dto);
+            $handle = new UpdateHandler();
+            return $this->getResponse($handle->handle($command), 'Товар успешно обновлён');
+        } catch (\DomainException $e) {
+            return $this->getError($e->getMessage());
         }
-
     }
 
     /**
      * @param $id
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy($id)
     {
-        $product = Product::query()->find($id);
-        if (is_null($product)) {
-            return $this->getError('Товар не найден');
-        } else {
-            $product->delete();
-            $product->categories()->sync([]);
-            return $this->getResponse($product->toArray(), 'Товар удалён');
+        try {
+            $command = new DestroyCommand((int)$id);
+            $handle = new DestroyHandler();
+            return $this->getResponse($handle->handle($command), 'Товар успешно удалён');
+        } catch (\DomainException $e) {
+            return $this->getError($e->getMessage());
         }
     }
 }
