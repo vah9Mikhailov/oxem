@@ -93,7 +93,7 @@ class Command
             }
         }
         if (empty($dto->getQty()) || empty($dto->getStoreIds())) {
-            throw new DomainException('Один из массивов quantity или store_id пуст');
+            throw new DomainException('Один из атрибутов quantity или store_id пуст');
         }
 
         if (empty(array_intersect_key($dto->getStoreIds(),$dto->getQty()))) {

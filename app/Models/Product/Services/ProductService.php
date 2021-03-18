@@ -6,6 +6,7 @@ namespace App\Models\Product\Services;
 
 use App\Models\Category\Entity\Category;
 use App\Models\Product\Entity\Product;
+use App\Models\Product\UseCase\Store\Command;
 use App\Models\Store\Entity\Store;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,7 @@ final class ProductService
 
     /**
      * @param Product $product
-     * @param array $categories
+     * @param array|null $categories
      * @return bool
      */
     public function addCategoriesToNewProducts(Product $product, ?array $categories): bool
@@ -78,8 +79,8 @@ final class ProductService
     }
 
     /**
-     * @param array $ids
-     * @return array
+     * @param array|null $ids
+     * @return array|null
      */
     public function checkCategoriesForExisting(?array $ids): ?array
     {
@@ -103,8 +104,8 @@ final class ProductService
 
     /**
      * @param Product $product
-     * @param array $stores
-     * @param array $qtys
+     * @param array|null $stores
+     * @param array|null $qtys
      * @return bool
      */
     public function addStoresToNewProducts(Product $product, ?array $stores, ?array $qtys): bool
@@ -138,6 +139,10 @@ final class ProductService
         }
     }
 
+    /**
+     * @param array|null $ids
+     * @return array|null
+     */
     public function checkStoresForExisting(?array $ids): ?array
     {
         $collection = $this->store->query()->findMany($ids);
@@ -172,5 +177,20 @@ final class ProductService
     public function deleteIdProductForExistingOnStores(int $id)
     {
         DB::table('product_store')->where('product_id', '=', "$id")->delete();
+    }
+
+    /**
+     * @param Command $command
+     * @return array
+     */
+    public function handle(Command $command): array
+    {
+        $product = new Product();
+        $product = $product->insertOrUpdate($command);
+        $ids = $this->checkCategoriesForExisting($command->getCategoryIds());
+        $ides = $this->checkStoresForExisting($command->getStoreIds());
+        $this->addCategoriesToNewProducts($product,$ids);
+        $this->addStoresToNewProducts($product,$ides,$command->getQty());
+        return $product->toArray();
     }
 }

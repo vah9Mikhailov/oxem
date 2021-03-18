@@ -209,24 +209,17 @@ class Product extends Model
     }
 
     /**
-     * @param InsertOrUpdateCommand $command
-     * @return $this
+     * @param Command $command
+     * @return $this|Product
      */
-    public function insertOrUpdate(InsertOrUpdateCommand $command)
+    public function insertOrUpdate(Command $command)
     {
         /**
          * @var $product Product
          */
         $product = $this->query()->where('external_id','=',$command->getExternalId())->first();
         if (is_null($product)) {
-            $this->name = $command->getName();
-            $this->description = $command->getDescription();
-            $this->price = $command->getPrice();
-            $this->external_id = $command->getExternalId();
-            $this->save();
-            if ($this->save()) {
-                return $this;
-            }
+            $this->create($command);
         } else {
             $product->name = $command->getName();
             $product->description = $command->getDescription();

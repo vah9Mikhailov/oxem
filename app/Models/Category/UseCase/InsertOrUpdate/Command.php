@@ -10,69 +10,32 @@ use Webmozart\Assert\Assert;
 class Command
 {
     /**
-     * @var int
-     */
-    private $id;
-
-    /**
      * @var string
      */
-    private $name;
+    private $fileName;
 
     /**
-     * @var int
+     * Command constructor.
+     * @param string $fileName
      */
-    private $parentId;
-
-    /**
-     * @var string
-     */
-    private $externalId;
-
-    public function __construct(Insert $dto)
+    public function __construct(string $fileName)
     {
-        $this->validate($dto);
-        $this->name = $dto->getName();
-        $this->parentId = $dto->getParentId();
-        $this->externalId = $dto->getExternalId();
+        $this->fileName = $fileName;
+        $this->validate();
     }
 
-    private function validate(Insert $dto)
+    private function validate()
     {
-        Assert::stringNotEmpty($dto->getName(), 'Поле name должно быть строкой');
-        Assert::greaterThan($dto->getParentId(),1,'Поле parent_id не может быть строкой или 0');
-        Assert::stringNotEmpty($dto->getExternalId(), "Поле external_id должно быть строкой");
+        if (!file_exists($this->fileName)) {
+            throw new \DomainException('ФАЙЛА НЕ СУЩЕСТВУЕТ');
+        }
     }
 
     /**
      * @return string
      */
-    public function getName(): string
+    public function getFileName(): string
     {
-        return $this->name;
-    }
-
-    /**
-     * @return int
-     */
-    public function getParentId(): int
-    {
-        return $this->parentId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExternalId(): string
-    {
-        return $this->externalId;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
+        return $this->fileName;
     }
 }

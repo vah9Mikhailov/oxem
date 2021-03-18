@@ -157,24 +157,18 @@ class Category extends Model
     }
 
     /**
-     * @param UpdateOrInsertCommand $command
+     * @param Command $command
      * @return $this|Category
      */
-    public function updateOrInsert(UpdateOrInsertCommand $command): Category
+    public function updateOrInsert(Command $command)
     {
         /**
          * @var $category Category
          */
-        $category = $this->query()->where('external_id','=',"{$command->getExternalId()}")->first();
+        $category = $this->query()->where('external_id','=',$command->getExternalId())->first();
         if (is_null($category))
         {
-            $this->name = $command->getName();
-            $this->parent_id = $command->getParentId();
-            $this->external_id = $command->getExternalId();
-            $this->save();
-            if ($this->save()) {
-                return $this;
-            }
+            $this->create($command);
         } else {
             $category->name = $command->getName();
             $category->parent_id = $command->getParentId();
